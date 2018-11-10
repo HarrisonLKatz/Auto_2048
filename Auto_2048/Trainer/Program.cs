@@ -6,7 +6,8 @@ namespace Trainer
     {
         static void Main(string[] args)
         {
-            //train 2048 here
+            //train population
+            //save best to json
         }
     }
 }
