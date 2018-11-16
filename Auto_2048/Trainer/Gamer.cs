@@ -27,14 +27,14 @@ namespace Trainer
             AddRandomTile();
         }
 
-        public void Play(bool draw)
+        public void Play(bool manual)
         {
 
             bool moveOccured = false;
             moveOccured |= Up(true);
             moveOccured |= Left(true);
             moveOccured |= Down(true);
-            //moveOccured |= Right(true);
+            moveOccured |= Right(true);
 
             if (!moveOccured)
             {
@@ -42,7 +42,8 @@ namespace Trainer
                 return;
             }
 
-            if (draw)
+            int pick = -1;
+            if (manual)
             {
                 Console.SetCursorPosition(0, 0);
                 for (int i = 0; i < board.GetLength(0); i++)
@@ -53,30 +54,34 @@ namespace Trainer
                     }
                     Console.WriteLine("");
                 }
+
+                ConsoleKey key = Console.ReadKey().Key;
+                switch (key)
+                {
+                    case ConsoleKey.UpArrow:
+                        pick = 0;
+                        break;
+                    case ConsoleKey.DownArrow:
+                        pick = 2;
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        pick = 1;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        pick = 3;
+                        break;
+                }
             }
-
-
-            //Pick Move
-            double[] outputs = new double[4];
-
-            ConsoleKey key = Console.ReadKey().Key;
-
-            int pick = -1; //Array.IndexOf(outputs, outputs.Max());
-            switch (key)
+            else
             {
-                case ConsoleKey.UpArrow:
-                    pick = 0;
-                    break;
-                case ConsoleKey.DownArrow:
-                    pick = 2;
-                    break;
-                case ConsoleKey.LeftArrow:
-                    pick = 1;
-                    break;
-                case ConsoleKey.RightArrow:
-                    pick = 3;
-                    break;
+                //Pick Move with network
+                double[] outputs = new double[4];
             }
+
+
+
+
+
 
             //perform move
             moveOccured = false;
@@ -101,19 +106,6 @@ namespace Trainer
             if (moveOccured)
             {
                 AddRandomTile();
-            }
-
-            if (draw)
-            {
-                Console.SetCursorPosition(0, 0);
-                for (int i = 0; i < board.GetLength(0); i++)
-                {
-                    for (int j = 0; j < board.GetLength(1); j++)
-                    {
-                        Console.Write($"{board[j, i]}\t");
-                    }
-                    Console.WriteLine("");
-                }
             }
         }
 

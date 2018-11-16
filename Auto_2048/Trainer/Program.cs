@@ -11,9 +11,14 @@ namespace Trainer
             //save best to json
             Gamer derp = new Gamer(random);
 
-            while (true)
+            while (!derp.GameOver)
             {
                 derp.Play(true);
+            }
+            Console.WriteLine("Game Over");
+            while (true)
+            {
+
             }
         }
     }
