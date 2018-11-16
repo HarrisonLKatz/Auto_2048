@@ -6,13 +6,13 @@ using System.Text;
 
 namespace Trainer
 {
-
     class Gamer
     {
         public int Score;
         public Network Net;
         public bool GameOver;
         public Random random;
+        public int FailedMoveCount = 0;
 
         int[,] board = new int[4, 4];
 
@@ -27,7 +27,7 @@ namespace Trainer
             AddRandomTile();
         }
 
-        public void Play(bool manual)
+        public void Play(bool manual = false)
         {
 
             bool moveOccured = false;
@@ -75,13 +75,17 @@ namespace Trainer
             else
             {
                 //Pick Move with network
-                double[] outputs = new double[4];
+                double[] input = new double[16];
+                int index = 0;
+                foreach (int num in board)
+                {
+                    input[index] = num;
+                    index++;
+                }
+
+                double[] outputs = Net.Compute(input);
+                pick = Array.IndexOf(outputs, outputs.Max());
             }
-
-
-
-
-
 
             //perform move
             moveOccured = false;
@@ -106,6 +110,10 @@ namespace Trainer
             if (moveOccured)
             {
                 AddRandomTile();
+            }
+            else
+            {
+                GameOver = true; //if a direction is picked that does not result in a move, game is over (net will pick the same output constantly if input is the same)
             }
         }
 
