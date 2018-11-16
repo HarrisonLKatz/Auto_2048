@@ -9,20 +9,26 @@ namespace Trainer
     class Gamer
     {
         public int Score;
+        public int AverageScore;
         public Network Net;
         public bool GameOver;
-        public Random random;
-        public int FailedMoveCount = 0;
+        public int[,] Board;
 
-        int[,] board = new int[4, 4];
+        private Random random;
 
         public Gamer(Random random)
         {
-            Score = 0;
-            GameOver = false;
             Net = new Network(Activations.Sigmoid, 16, 20, 4);
             Net.Randomize(random);
             this.random = random;
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            Score = 0;
+            GameOver = false;
+            Board = new int[4, 4];
             AddRandomTile();
             AddRandomTile();
         }
@@ -46,11 +52,11 @@ namespace Trainer
             if (manual)
             {
                 Console.SetCursorPosition(0, 0);
-                for (int i = 0; i < board.GetLength(0); i++)
+                for (int i = 0; i < Board.GetLength(0); i++)
                 {
-                    for (int j = 0; j < board.GetLength(1); j++)
+                    for (int j = 0; j < Board.GetLength(1); j++)
                     {
-                        Console.Write($"{board[j, i]}\t");
+                        Console.Write($"{Board[j, i]}\t");
                     }
                     Console.WriteLine("");
                 }
@@ -77,7 +83,7 @@ namespace Trainer
                 //Pick Move with network
                 double[] input = new double[16];
                 int index = 0;
-                foreach (int num in board)
+                foreach (int num in Board)
                 {
                     input[index] = num;
                     index++;
@@ -121,11 +127,11 @@ namespace Trainer
         {
             //find all open spots
             List<(int, int)> openSpots = new List<(int, int)>(16);
-            for (int i = 0; i < board.GetLength(0); i++)
+            for (int i = 0; i < Board.GetLength(0); i++)
             {
-                for (int j = 0; j < board.GetLength(1); j++)
+                for (int j = 0; j < Board.GetLength(1); j++)
                 {
-                    if (board[i, j] == 0)
+                    if (Board[i, j] == 0)
                     {
                         openSpots.Add((i, j));
                     }
@@ -140,22 +146,22 @@ namespace Trainer
 
             //pick a random open spot and fill with either 2 or 4
             (int x, int y) = openSpots[random.Next(openSpots.Count)];
-            board[x, y] = random.NextDouble() < 0.9 ? 2 : 4;
+            Board[x, y] = random.NextDouble() < 0.9 ? 2 : 4;
         }
 
         bool Up(bool reset) // 0 top, length bot
         {
-            int[,] copy = board.Clone() as int[,];
+            int[,] copy = Board.Clone() as int[,];
 
 
             bool moveOccured = false;
             //for every column
-            for (int col = 0; col < board.GetLength(0); col++)
+            for (int col = 0; col < Board.GetLength(0); col++)
             {
                 HashSet<int> merged = new HashSet<int>();
-                for (int row = 0; row < board.GetLength(1); row++)
+                for (int row = 0; row < Board.GetLength(1); row++)
                 {
-                    if (board[col, row] != 0)
+                    if (Board[col, row] != 0)
                     {
                         //move tiles up
                         //once tile is merged, it cannot be merged again
@@ -174,22 +180,22 @@ namespace Trainer
 
 
                             //if the above spot if open
-                            if (board[col, curr - 1] == 0)
+                            if (Board[col, curr - 1] == 0)
                             {
                                 //move up by swapping values
-                                board[col, curr - 1] = board[col, curr];
-                                board[col, curr] = 0;
+                                Board[col, curr - 1] = Board[col, curr];
+                                Board[col, curr] = 0;
                                 curr--;
                                 moveOccured = true;
                             }
                             //if the above spot is the same value and not merged
-                            else if (board[col, curr - 1] == board[col, curr] && !merged.Contains(curr - 1))
+                            else if (Board[col, curr - 1] == Board[col, curr] && !merged.Contains(curr - 1))
                             {
                                 //move up by merging values
-                                board[col, curr - 1] += board[col, curr];
-                                board[col, curr] = 0;
+                                Board[col, curr - 1] += Board[col, curr];
+                                Board[col, curr] = 0;
 
-                                Score += board[col, curr - 1];
+                                Score += Board[col, curr - 1];
 
                                 //add score
                                 merged.Add(curr - 1);
@@ -208,7 +214,7 @@ namespace Trainer
 
             if (reset)
             {
-                board = copy.Clone() as int[,];
+                Board = copy.Clone() as int[,];
             }
 
             return moveOccured;
@@ -216,34 +222,34 @@ namespace Trainer
 
         bool Down(bool reset)
         {
-            int[,] copy = board.Clone() as int[,];
+            int[,] copy = Board.Clone() as int[,];
             bool moveOccured = false;
-            for (int col = 0; col < board.GetLength(0); col++)
+            for (int col = 0; col < Board.GetLength(0); col++)
             {
                 HashSet<int> merged = new HashSet<int>();
-                for (int row = board.GetLength(1) - 1; row >= 0; row--)
+                for (int row = Board.GetLength(1) - 1; row >= 0; row--)
                 {
-                    if (board[col, row] != 0)
+                    if (Board[col, row] != 0)
                     {
                         int curr = row;
-                        while (curr < board.GetLength(1) - 1)
+                        while (curr < Board.GetLength(1) - 1)
                         {
                             if (merged.Contains(curr))
                             {
                                 break;
                             }
-                            if (board[col, curr + 1] == 0)
+                            if (Board[col, curr + 1] == 0)
                             {
-                                board[col, curr + 1] = board[col, curr];
-                                board[col, curr] = 0;
+                                Board[col, curr + 1] = Board[col, curr];
+                                Board[col, curr] = 0;
                                 curr++;
                                 moveOccured = true;
                             }
-                            else if (board[col, curr + 1] == board[col, curr] && !merged.Contains(curr + 1))
+                            else if (Board[col, curr + 1] == Board[col, curr] && !merged.Contains(curr + 1))
                             {
-                                board[col, curr + 1] += board[col, curr];
-                                board[col, curr] = 0;
-                                Score += board[col, curr + 1];
+                                Board[col, curr + 1] += Board[col, curr];
+                                Board[col, curr] = 0;
+                                Score += Board[col, curr + 1];
                                 merged.Add(curr + 1);
                                 curr++;
                                 moveOccured = true;
@@ -259,7 +265,7 @@ namespace Trainer
 
             if (reset)
             {
-                board = copy.Clone() as int[,];
+                Board = copy.Clone() as int[,];
             }
 
             return moveOccured;
@@ -267,14 +273,14 @@ namespace Trainer
 
         bool Left(bool reset)
         {
-            int[,] copy = board.Clone() as int[,];
+            int[,] copy = Board.Clone() as int[,];
             bool moveOccured = false;
-            for (int row = 0; row < board.GetLength(1); row++)
+            for (int row = 0; row < Board.GetLength(1); row++)
             {
                 HashSet<int> merged = new HashSet<int>();
-                for (int col = 0; col < board.GetLength(0); col++)
+                for (int col = 0; col < Board.GetLength(0); col++)
                 {
-                    if (board[col, row] != 0)
+                    if (Board[col, row] != 0)
                     {
                         int curr = col;
                         while (curr > 0)
@@ -283,19 +289,19 @@ namespace Trainer
                             {
                                 break;
                             }
-                            if (board[curr - 1, row] == 0)
+                            if (Board[curr - 1, row] == 0)
                             {
-                                board[curr - 1, row] = board[curr, row];
-                                board[curr, row] = 0;
+                                Board[curr - 1, row] = Board[curr, row];
+                                Board[curr, row] = 0;
                                 curr--;
                                 moveOccured = true;
                             }
-                            else if (board[curr - 1, row] == board[curr, row] && !merged.Contains(curr - 1))
+                            else if (Board[curr - 1, row] == Board[curr, row] && !merged.Contains(curr - 1))
                             {
-                                board[curr - 1, row] += board[curr, row];
-                                board[curr, row] = 0;
+                                Board[curr - 1, row] += Board[curr, row];
+                                Board[curr, row] = 0;
 
-                                Score += board[curr - 1, row];
+                                Score += Board[curr - 1, row];
                                 merged.Add(curr - 1);
                                 curr--;
                                 moveOccured = true;
@@ -311,7 +317,7 @@ namespace Trainer
 
             if (reset)
             {
-                board = copy.Clone() as int[,];
+                Board = copy.Clone() as int[,];
             }
 
             return moveOccured;
@@ -319,35 +325,35 @@ namespace Trainer
 
         bool Right(bool reset)
         {
-            int[,] copy = board.Clone() as int[,];
+            int[,] copy = Board.Clone() as int[,];
             bool moveOccured = false;
-            for (int row = 0; row < board.GetLength(1); row++)
+            for (int row = 0; row < Board.GetLength(1); row++)
             {
                 HashSet<int> merged = new HashSet<int>();
-                for (int col = board.GetLength(0) - 1; col >= 0; col--)
+                for (int col = Board.GetLength(0) - 1; col >= 0; col--)
                 {
-                    if (board[col, row] != 0)
+                    if (Board[col, row] != 0)
                     {
                         int curr = col;
-                        while (curr < board.GetLength(0) - 1)
+                        while (curr < Board.GetLength(0) - 1)
                         {
                             if (merged.Contains(curr))
                             {
                                 break;
                             }
 
-                            if (board[curr + 1, row] == 0)
+                            if (Board[curr + 1, row] == 0)
                             {
-                                board[curr + 1, row] = board[curr, row];
-                                board[curr, row] = 0;
+                                Board[curr + 1, row] = Board[curr, row];
+                                Board[curr, row] = 0;
                                 curr++;
                                 moveOccured = true;
                             }
-                            else if (board[curr + 1, row] == board[curr, row] && !merged.Contains(curr + 1))
+                            else if (Board[curr + 1, row] == Board[curr, row] && !merged.Contains(curr + 1))
                             {
-                                board[curr + 1, row] += board[curr, row];
-                                board[curr, row] = 0;
-                                Score += board[curr + 1, row];
+                                Board[curr + 1, row] += Board[curr, row];
+                                Board[curr, row] = 0;
+                                Score += Board[curr + 1, row];
                                 merged.Add(curr + 1);
                                 curr++;
                                 moveOccured = true;
@@ -363,7 +369,7 @@ namespace Trainer
 
             if (reset)
             {
-                board = copy.Clone() as int[,];
+                Board = copy.Clone() as int[,];
             }
 
             return moveOccured;

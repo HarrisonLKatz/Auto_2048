@@ -16,6 +16,8 @@ namespace Trainer
             }
 
             int maxGen = 1000;
+            int playCount = 10;
+            int highScore = 0;
 
             for (int gen = 0; gen < maxGen; gen++)
             {
@@ -35,34 +37,63 @@ namespace Trainer
                     }
                 }
 
-                //Run Fitness
-                int doneCount;
-                do
+                for (int i = 0; i < population.Length; i++)
                 {
-                    doneCount = 0;
+                    population[i].AverageScore = 0;
+                }
+
+                //each net should play a # of games and get an average score
+                for (int gameNum = 0; gameNum < playCount; gameNum++)
+                {
+                    //Reset Game
                     for (int i = 0; i < population.Length; i++)
                     {
-                        if (!population[i].GameOver)
-                        {
-                            population[i].Play();
-                        }
-                        else
-                        {
-                            doneCount++;
-                        }
+                        population[i].Initialize();
                     }
-                } while (doneCount != population.Length);
+
+                    //Play Game until all nets finish
+                    int doneCount;
+                    do
+                    {
+                        doneCount = 0;
+                        for (int i = 0; i < population.Length; i++)
+                        {
+                            if (!population[i].GameOver)
+                            {
+                                population[i].Play();
+                            }
+                            else
+                            {
+                                doneCount++;
+                            }
+                        }
+                    } while (doneCount != population.Length);
+
+                    //calculate avg score after each game
+                    for (int i = 0; i < population.Length; i++)
+                    {
+                        population[i].AverageScore += population[i].Score;
+                        population[i].AverageScore /= 2;
+                    }
+                }
 
                 //Sort Fitness
-                Array.Sort(population, (a, b) => b.Score.CompareTo(a.Score));
+                Array.Sort(population, (a, b) => b.AverageScore.CompareTo(a.AverageScore));
+
+                if (population[0].AverageScore > highScore)
+                {
+                    highScore = population[0].AverageScore;
+                }
 
                 //Display Progress
                 Console.SetCursorPosition(0, 0);
                 Console.WriteLine($"%{(int)(gen / (double)maxGen * 100)}");
-                Console.WriteLine($"High Score: {population[0].Score}");
+                Console.WriteLine($"High Score: {highScore}");
 
             }
 
+
+            //play game with best net
             //save best net to json
 
             Console.ReadKey();
