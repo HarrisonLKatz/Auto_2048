@@ -6,18 +6,31 @@ namespace Trainer
     {
         static void Main(string[] args)
         {
+            // 10 = 2877
+            // 11 = 
+            // 12 =
+            // 13 = 4872
+            // 14 = 7102
+            // 15 = 6142
+            // 16 =
+            // 17 = 3378
+            // 18 = 
+            // 19 = 
+            // 20 = 2667
+            // 20, 20 = 1868
+
+
+            int maxGen = 1000;
+            int playCount = 10;
+            int populationSize = 100;
+
+            int highScore = 0;
             Random random = new Random();
-            //train population
-            //save best to json
-            Gamer[] population = new Gamer[100];
+            Gamer[] population = new Gamer[populationSize];
             for (int i = 0; i < population.Length; i++)
             {
                 population[i] = new Gamer(random);
             }
-
-            int maxGen = 1000;
-            int playCount = 10;
-            int highScore = 0;
 
             for (int gen = 0; gen < maxGen; gen++)
             {
@@ -73,8 +86,12 @@ namespace Trainer
                     for (int i = 0; i < population.Length; i++)
                     {
                         population[i].AverageScore += population[i].Score;
-                        population[i].AverageScore /= 2;
                     }
+                }
+
+                for (int i = 0; i < population.Length; i++)
+                {
+                    population[i].AverageScore /= playCount;
                 }
 
                 //Sort Fitness
@@ -95,7 +112,7 @@ namespace Trainer
 
             //play game with best net
             //save best net to json
-
+            Console.WriteLine("Done");
             Console.ReadKey();
         }
     }

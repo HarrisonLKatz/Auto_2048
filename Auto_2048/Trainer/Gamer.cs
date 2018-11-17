@@ -18,7 +18,7 @@ namespace Trainer
 
         public Gamer(Random random)
         {
-            Net = new Network(Activations.Sigmoid, 16, 20, 4);
+            Net = new Network(Activations.Sigmoid, 16, 14, 4);
             Net.Randomize(random);
             this.random = random;
             Initialize();
@@ -38,8 +38,8 @@ namespace Trainer
 
             bool moveOccured = false;
             moveOccured |= Up(true);
-            moveOccured |= Left(true);
             moveOccured |= Down(true);
+            moveOccured |= Left(true);
             moveOccured |= Right(true);
 
             if (!moveOccured)
@@ -101,10 +101,10 @@ namespace Trainer
                     moveOccured |= Up(false);
                     break;
                 case 1:
-                    moveOccured |= Left(false);
+                    moveOccured |= Down(false);
                     break;
                 case 2:
-                    moveOccured |= Down(false);
+                    moveOccured |= Left(false);
                     break;
                 case 3:
                     moveOccured |= Right(false);
