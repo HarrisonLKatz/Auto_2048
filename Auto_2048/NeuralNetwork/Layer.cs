@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Linq;
 
 namespace FeedForwardNeuralNetwork
@@ -6,6 +7,8 @@ namespace FeedForwardNeuralNetwork
     public class Layer
     {
         public Neuron[] Neurons;
+
+        [JsonIgnore]
         public double[] Output => Neurons.Select(n => n.Output).ToArray();
 
         public Layer(Func<double, double> activation, int inputCount, int neuronCount)

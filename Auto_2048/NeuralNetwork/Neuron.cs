@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 
 namespace FeedForwardNeuralNetwork
 {
@@ -6,8 +7,11 @@ namespace FeedForwardNeuralNetwork
     {
         public double Bias;
         public double[] Weights;
+
+        [JsonIgnore]
         public double Output;
 
+        [JsonIgnore]
         public Func<double, double> Activation;
 
         public Neuron(Func<double, double> activation, int inputCount)

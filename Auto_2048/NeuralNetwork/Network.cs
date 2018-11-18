@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Linq;
 
 namespace FeedForwardNeuralNetwork
@@ -6,9 +7,35 @@ namespace FeedForwardNeuralNetwork
     public class Network
     {
         public Layer[] Layers;
+
+        private ActivationType activationType;
+        private int inputCount;
+        private int[] layerNeurons;
+
+        [JsonIgnore]
         public double[] Output => Layers.Last().Output;
 
-        public Network(Func<double, double> activation, int inputCount, params int[] layerNeurons)
+        [JsonConstructor]
+        public Network(ActivationType activationType, int inputCount, params int[] layerNeurons)
+        {
+            this.activationType = activationType;
+            this.inputCount = inputCount;
+            this.layerNeurons = layerNeurons;
+
+            switch (activationType)
+            {
+                case ActivationType.BinaryStep:
+                    Initialize(Activations.BinaryStep, inputCount, layerNeurons);
+                    break;
+                case ActivationType.Sigmoid:
+                    Initialize(Activations.Sigmoid, inputCount, layerNeurons);
+                    break;
+                default:
+                    throw new ArgumentException("u wot m8");
+            }
+        }
+
+        private void Initialize(Func<double, double> activation, int inputCount, params int[] layerNeurons)
         {
             Layers = new Layer[layerNeurons.Length];
             Layers[0] = new Layer(activation, inputCount, layerNeurons[0]);

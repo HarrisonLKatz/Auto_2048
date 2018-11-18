@@ -18,7 +18,7 @@ namespace Trainer
 
         public Gamer(Random random)
         {
-            Net = new Network(Activations.Sigmoid, 16, 14, 4);
+            Net = new Network(ActivationType.Sigmoid, 16, 14, 4);
             Net.Randomize(random);
             this.random = random;
             Initialize();
