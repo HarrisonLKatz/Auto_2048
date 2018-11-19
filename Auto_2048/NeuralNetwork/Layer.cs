@@ -11,12 +11,12 @@ namespace FeedForwardNeuralNetwork
         [JsonIgnore]
         public double[] Output => Neurons.Select(n => n.Output).ToArray();
 
-        public Layer(Func<double, double> activation, int inputCount, int neuronCount)
+        public Layer(ActivationType act, int inputCount, int neuronCount)
         {
             Neurons = new Neuron[neuronCount];
             for (int i = 0; i < Neurons.Length; i++)
             {
-                Neurons[i] = new Neuron(activation, inputCount);
+                Neurons[i] = new Neuron(act, inputCount);
             }
         }
 

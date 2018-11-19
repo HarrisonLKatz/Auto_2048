@@ -1,6 +1,8 @@
 ﻿using FeedForwardNeuralNetwork;
 using Newtonsoft.Json;
 using System;
+using System.IO;
+using System.Linq;
 
 namespace Trainer
 {
@@ -22,7 +24,7 @@ namespace Trainer
             // 20, 20 = 1868
 
 
-            int maxGen = 1;
+            int maxGen = 1000;
             int playCount = 10;
             int populationSize = 100;
 
@@ -114,9 +116,9 @@ namespace Trainer
 
             //play game with best net
 
-            string derp = JsonConvert.SerializeObject(population[0].Net);
+            string save = JsonConvert.SerializeObject(population[0].Net);
 
-            Network net = JsonConvert.DeserializeObject<Network>(derp);
+            File.WriteAllText("bestNet.json", save);
 
             //save best net to json
             Console.WriteLine("Done");

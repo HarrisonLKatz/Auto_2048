@@ -8,40 +8,28 @@ namespace FeedForwardNeuralNetwork
     {
         public Layer[] Layers;
 
-        private ActivationType activationType;
-        private int inputCount;
-        private int[] layerNeurons;
+        [JsonProperty]
+        private readonly ActivationType act;
+        [JsonProperty]
+        private readonly int inputCount;
+        [JsonProperty]
+        private readonly int[] layerNeurons;
 
         [JsonIgnore]
         public double[] Output => Layers.Last().Output;
 
         [JsonConstructor]
-        public Network(ActivationType activationType, int inputCount, params int[] layerNeurons)
+        public Network(ActivationType act, int inputCount, params int[] layerNeurons)
         {
-            this.activationType = activationType;
+            this.act = act;
             this.inputCount = inputCount;
             this.layerNeurons = layerNeurons;
 
-            switch (activationType)
-            {
-                case ActivationType.BinaryStep:
-                    Initialize(Activations.BinaryStep, inputCount, layerNeurons);
-                    break;
-                case ActivationType.Sigmoid:
-                    Initialize(Activations.Sigmoid, inputCount, layerNeurons);
-                    break;
-                default:
-                    throw new ArgumentException("u wot m8");
-            }
-        }
-
-        private void Initialize(Func<double, double> activation, int inputCount, params int[] layerNeurons)
-        {
             Layers = new Layer[layerNeurons.Length];
-            Layers[0] = new Layer(activation, inputCount, layerNeurons[0]);
+            Layers[0] = new Layer(act, inputCount, layerNeurons[0]);
             for (int i = 1; i < layerNeurons.Length; i++)
             {
-                Layers[i] = new Layer(activation, Layers[i - 1].Neurons.Length, layerNeurons[i]);
+                Layers[i] = new Layer(act, Layers[i - 1].Neurons.Length, layerNeurons[i]);
             }
         }
 
@@ -74,14 +62,23 @@ namespace FeedForwardNeuralNetwork
                     Neuron neuron = layer.Neurons[n];
                     if (random.NextDouble() < rate)
                     {
-                        neuron.Bias *= random.NextDouble(0.5, 1.5) * random.RandomSign();
+                        neuron.Bias *= random.NextDouble(0.5, 1.5);
+                        if (random.NextDouble() < rate)
+                        {
+                            neuron.Bias *= random.RandomSign();
+                        }
                     }
 
                     for (int w = 0; w < neuron.Weights.Length; w++)
                     {
                         if (random.NextDouble() < rate)
                         {
-                            neuron.Weights[w] *= random.NextDouble(0.5, 1.5) * random.RandomSign();
+                            neuron.Weights[w] *= random.NextDouble(0.5, 1.5);
+
+                            if (random.NextDouble() < rate)
+                            {
+                                neuron.Weights[w] *= random.RandomSign();
+                            }
                         }
                     }
                 }

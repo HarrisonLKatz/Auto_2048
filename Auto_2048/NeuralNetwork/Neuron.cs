@@ -14,9 +14,19 @@ namespace FeedForwardNeuralNetwork
         [JsonIgnore]
         public Func<double, double> Activation;
 
-        public Neuron(Func<double, double> activation, int inputCount)
+        public Neuron(ActivationType act, int inputCount)
         {
-            Activation = activation;
+            switch (act)
+            {
+                case ActivationType.BinaryStep:
+                    Activation = Activations.BinaryStep;
+                    break;
+                case ActivationType.Sigmoid:
+                    Activation = Activations.Sigmoid;
+                    break;
+                default:
+                    throw new Exception("u wot m8");
+            }
             Weights = new double[inputCount];
         }
 
