@@ -15,10 +15,12 @@ namespace Trainer
         public int[,] Board;
 
         private Random random;
+        private bool moveOccured = false;
+        private bool repeatedMove = false;
 
         public Gamer(Random random)
         {
-            Net = new Network(ActivationType.Sigmoid, 16, 14, 4);
+            Net = new Network(ActivationType.Sigmoid, 17, 14, 4);
             Net.Randomize(random);
             this.random = random;
             Initialize();
@@ -28,6 +30,8 @@ namespace Trainer
         {
             Score = 0;
             GameOver = false;
+            repeatedMove = false;
+            moveOccured = false;
             Board = new int[4, 4];
             AddRandomTile();
             AddRandomTile();
@@ -36,13 +40,13 @@ namespace Trainer
         public void Play(bool manual = false)
         {
 
-            bool moveOccured = false;
-            moveOccured |= Up(true);
-            moveOccured |= Down(true);
-            moveOccured |= Left(true);
-            moveOccured |= Right(true);
+            bool moveCanOccur = false;
+            moveCanOccur |= Up(true);
+            moveCanOccur |= Down(true);
+            moveCanOccur |= Left(true);
+            moveCanOccur |= Right(true);
 
-            if (!moveOccured)
+            if (!moveCanOccur)
             {
                 GameOver = true;
                 return;
@@ -81,8 +85,11 @@ namespace Trainer
             else
             {
                 //Pick Move with network
-                double[] input = new double[16];
-                int index = 0;
+                double[] input = new double[17];
+
+                input[0] = moveOccured ? 0 : 1;
+
+                int index = 1;
                 foreach (int num in Board)
                 {
                     input[index] = num;
@@ -119,7 +126,7 @@ namespace Trainer
             }
             else
             {
-                GameOver = true; //if a direction is picked that does not result in a move, game is over (net will pick the same output constantly if input is the same)
+                //increase fail count, if it reaches some number, call it quits
             }
         }
 
