@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Interactions;
 using System;
+using System.IO;
 using System.Linq;
 
 namespace RyanIsCool
@@ -18,7 +19,8 @@ namespace RyanIsCool
             // 0: up, 1: right, 2: down, 3: left
             Actions builder = new Actions(driver);
 
-            Network net = JsonConvert.DeserializeObject<Network>("bestNet.json");
+            string json = File.ReadAllText("bestNet.json");
+            Network net = JsonConvert.DeserializeObject<Network>(json);
             //net: 16 input, 4 output
 
             while (true)
@@ -34,11 +36,18 @@ namespace RyanIsCool
                     if (className != "tile-inner")
                     {
                         string[] blocks = className.Split(' ');
-                        int tile = int.Parse(blocks[1].Substring(5));
+                        int tileValue = int.Parse(blocks[1].Substring(5));
 
-                        int x = int.Parse(blocks[2].Substring(14, 1));
-                        int y = int.Parse(blocks[2].Substring(16, 1));
-                        //tile-position-#-# 2d position and translate to 1d array, if the new value is bigger replace, otherwise skip
+                        int y = int.Parse(blocks[2].Substring(14, 1)) - 1;
+                        int x = int.Parse(blocks[2].Substring(16, 1)) - 1;
+                        int index = y * 4 + x;
+                        //tile-position-#-# 2dposition and translate to 1d array, if the new value is bigger replace, otherwise skip
+                        if (inputs[index] < tileValue)
+                        {
+                            inputs[index] = tileValue;
+                        }
+
+
                     }
                 }
 
