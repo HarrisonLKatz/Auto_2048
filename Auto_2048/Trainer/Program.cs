@@ -3,24 +3,26 @@ using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Trainer
 {
     class Program
     {
-        static Random random = new Random();
+        static Random random = new Random(42);
 
         static void Main(string[] args)
         {
             Console.Clear();
             Console.Write("Play or Train [p/t]? ");
-            string response = Console.ReadLine().ToLower();
+            //string response = Console.ReadLine().ToLower();
 
-            if (response == "p")
+            if (false)// (response == "p")
             {
                 PlayGame();
             }
-            else if (response == "t")
+            else if (true)//(response == "t")
             {
                 TrainNetwork();
             }
@@ -28,6 +30,8 @@ namespace Trainer
 
         static void PlayGame()
         {
+            Console.Clear();
+
             Gamer player = new Gamer(random);
             while (!player.GameOver)
             {
@@ -38,35 +42,40 @@ namespace Trainer
 
         static void TrainNetwork()
         {
-            // 16, x, 4
-            // 10 = 2877
-            // 13 = 4872
-            // 14 = 7102
-            // 15 = 6142
-            // 17 = 3378
-            // 20 = 2667
+            Console.Clear();
 
+            // To Beat: 
+            // Total: 564,116
+            // Highest: 32,768
 
+            // 20, x, 4
+            // 10 = 
+            // 14 = 
+            // 20 = 
 
             int maxGen = 1000;
             int playCount = 10;
-            int populationSize = 100;
-            int highScore = 0;
+            int populationSize = 200;
+            int highAverageScore = 0;
             Gamer[] population = new Gamer[populationSize];
+
+            int inputSize = 20;
+            int[] netShape = { 14, 4 };
 
             //Initialize Gamers
             for (int i = 0; i < population.Length; i++)
             {
-                population[i] = new Gamer(random);
+                population[i] = new Gamer(random, inputSize, netShape);
             }
 
             for (int gen = 0; gen < maxGen; gen++)
             {
-                //Mutate Generation
+
                 if (gen != 0)
                 {
+                    //Mutate Generation
                     int start = (int)(population.Length * 0.10);
-                    int end = (int)(population.Length * 0.90);
+                    int end = (int)(population.Length * 0.85);
                     for (int i = start; i < end; i++)
                     {
                         population[i].Net.Crossover(random, population[random.Next(start)].Net);
@@ -84,56 +93,41 @@ namespace Trainer
                 }
 
                 //each net should play a # of games and get an average score
-                for (int gameNum = 0; gameNum < playCount; gameNum++)
+
+                Parallel.For(0, population.Length, (i) =>
                 {
-                    //Reset Game
-                    for (int i = 0; i < population.Length; i++)
+                    for (int gameNum = 0; gameNum < playCount; gameNum++)
                     {
-                        population[i].Initialize();
-                    }
+                        //Reset Game
+                        population[i].Restart();
 
-                    //Play Game until all nets finish
-                    int doneCount;
-                    do
-                    {
-                        doneCount = 0;
-                        for (int i = 0; i < population.Length; i++)
+                        //Each Net Plays game until completed
+                        while (!population[i].GameOver)
                         {
-                            if (!population[i].GameOver)
-                            {
-                                population[i].Play();
-                            }
-                            else
-                            {
-                                doneCount++;
-                            }
+                            population[i].Play();
                         }
-                    } while (doneCount != population.Length);
 
-                    //calculate avg score after each game
-                    for (int i = 0; i < population.Length; i++)
-                    {
+                        //calculate avg score after each game
                         population[i].AverageScore += population[i].Score;
                     }
-                }
-
-                for (int i = 0; i < population.Length; i++)
-                {
                     population[i].AverageScore /= playCount;
-                }
+                });
+
 
                 //Sort Fitness
                 Array.Sort(population, (a, b) => b.AverageScore.CompareTo(a.AverageScore));
 
-                if (population[0].AverageScore > highScore)
+                if (population[0].AverageScore > highAverageScore)
                 {
-                    highScore = population[0].AverageScore;
+                    highAverageScore = population[0].AverageScore;
                 }
 
                 //Display Progress
+
                 Console.SetCursorPosition(0, 0);
+                Console.WriteLine($"Highest Average Score: {highAverageScore}");
                 Console.WriteLine($"%{(int)(gen / (double)maxGen * 100)}");
-                Console.WriteLine($"High Score: {highScore}");
+
 
             }
 

@@ -41,12 +41,12 @@ namespace FeedForwardNeuralNetwork
 
         public double Compute(double[] input)
         {
-            double output = 0;
+            Output = 0;
             for (int i = 0; i < Weights.Length; i++)
             {
-                output += Weights[i] * input[i];
+                Output += Weights[i] * input[i];
             }
-            Output = Activation(output + Bias);
+            Output = Activation(Output + Bias);
             return Output;
         }
     }

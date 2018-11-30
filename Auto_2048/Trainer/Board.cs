@@ -9,13 +9,34 @@ namespace Trainer
         public int Score;
         public bool GameOver;
         public int[,] Values;
+        private int[,] PrevState;
         Random random;
+
+        private HashSet<int> merged;
+        private List<(int, int)> openSpots;
 
         public Board(Random gen)
         {
-            GameOver = false;
+            merged = new HashSet<int>(8);
+            openSpots = new List<(int, int)>(16);
             Values = new int[4, 4];
+            PrevState = new int[4, 4];
             random = gen;
+
+            Init();
+        }
+
+        public void Init()
+        {
+            Score = 0;
+            GameOver = false;
+            for (int i = 0; i < Values.GetLength(0); i++)
+            {
+                for (int j = 0; j < Values.GetLength(1); j++)
+                {
+                    Values[i, j] = 0;
+                }
+            }
             AddRandomTile();
             AddRandomTile();
         }
@@ -23,7 +44,8 @@ namespace Trainer
         public void AddRandomTile()
         {
             //find all open spots
-            List<(int, int)> openSpots = new List<(int, int)>(16);
+            openSpots.Clear();
+
             for (int i = 0; i < Values.GetLength(0); i++)
             {
                 for (int j = 0; j < Values.GetLength(1); j++)
@@ -46,16 +68,26 @@ namespace Trainer
             Values[x, y] = random.NextDouble() < 0.9 ? 2 : 4;
         }
 
+        public void Clone(int[,] from, int[,] to)
+        {
+            for (int i = 0; i < from.GetLength(0); i++)
+            {
+                for (int j = 0; j < from.GetLength(1); j++)
+                {
+                    to[i, j] = from[i, j];
+                }
+            }
+        }
+
         public bool Up(bool reset) // 0 top, length bot
         {
-            int[,] copy = Values.Clone() as int[,];
-
+            Clone(Values, PrevState);
 
             bool moveOccured = false;
             //for every column
             for (int col = 0; col < Values.GetLength(0); col++)
             {
-                HashSet<int> merged = new HashSet<int>();
+                merged.Clear();
                 for (int row = 0; row < Values.GetLength(1); row++)
                 {
                     if (Values[col, row] != 0)
@@ -111,7 +143,7 @@ namespace Trainer
 
             if (reset)
             {
-                Values = copy.Clone() as int[,];
+                Clone(PrevState, Values);
             }
 
             return moveOccured;
@@ -119,11 +151,11 @@ namespace Trainer
 
         public bool Down(bool reset)
         {
-            int[,] copy = Values.Clone() as int[,];
+            Clone(Values, PrevState);
             bool moveOccured = false;
             for (int col = 0; col < Values.GetLength(0); col++)
             {
-                HashSet<int> merged = new HashSet<int>();
+                merged.Clear();
                 for (int row = Values.GetLength(1) - 1; row >= 0; row--)
                 {
                     if (Values[col, row] != 0)
@@ -162,7 +194,7 @@ namespace Trainer
 
             if (reset)
             {
-                Values = copy.Clone() as int[,];
+                Clone(PrevState, Values);
             }
 
             return moveOccured;
@@ -170,11 +202,11 @@ namespace Trainer
 
         public bool Left(bool reset)
         {
-            int[,] copy = Values.Clone() as int[,];
+            Clone(Values, PrevState);
             bool moveOccured = false;
             for (int row = 0; row < Values.GetLength(1); row++)
             {
-                HashSet<int> merged = new HashSet<int>();
+                merged.Clear();
                 for (int col = 0; col < Values.GetLength(0); col++)
                 {
                     if (Values[col, row] != 0)
@@ -214,7 +246,7 @@ namespace Trainer
 
             if (reset)
             {
-                Values = copy.Clone() as int[,];
+                Clone(PrevState, Values);
             }
 
             return moveOccured;
@@ -222,11 +254,11 @@ namespace Trainer
 
         public bool Right(bool reset)
         {
-            int[,] copy = Values.Clone() as int[,];
+            Clone(Values, PrevState);
             bool moveOccured = false;
             for (int row = 0; row < Values.GetLength(1); row++)
             {
-                HashSet<int> merged = new HashSet<int>();
+                merged.Clear();
                 for (int col = Values.GetLength(0) - 1; col >= 0; col--)
                 {
                     if (Values[col, row] != 0)
@@ -266,7 +298,7 @@ namespace Trainer
 
             if (reset)
             {
-                Values = copy.Clone() as int[,];
+                Clone(PrevState, Values);
             }
 
             return moveOccured;

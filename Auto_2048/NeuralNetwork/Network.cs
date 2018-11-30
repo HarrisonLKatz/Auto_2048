@@ -16,7 +16,7 @@ namespace FeedForwardNeuralNetwork
         private readonly int[] layerNeurons;
 
         [JsonIgnore]
-        public double[] Output => Layers.Last().Output;
+        public double[] Output;
 
         [JsonConstructor]
         public Network(ActivationType act, int inputCount, params int[] layerNeurons)
@@ -43,41 +43,38 @@ namespace FeedForwardNeuralNetwork
 
         public double[] Compute(double[] input)
         {
-
-            double[] output = input;
+            Output = input;
             for (int i = 0; i < Layers.Length; i++)
             {
-                output = Layers[i].Compute(output);
+                Output = Layers[i].Compute(Output);
             }
-            return output;
+            return Output;
         }
 
         public void Mutate(Random random, double rate)
         {
             for (int l = 0; l < Layers.Length; l++)
             {
-                Layer layer = Layers[l];
-                for (int n = 0; n < layer.Neurons.Length; n++)
+                for (int n = 0; n < Layers[l].Neurons.Length; n++)
                 {
-                    Neuron neuron = layer.Neurons[n];
                     if (random.NextDouble() < rate)
                     {
-                        neuron.Bias *= random.NextDouble(0.5, 1.5);
+                        Layers[l].Neurons[n].Bias *= random.NextDouble(0.5, 1.5);
                         if (random.NextDouble() < rate)
                         {
-                            neuron.Bias *= random.RandomSign();
+                            Layers[l].Neurons[n].Bias *= random.RandomSign();
                         }
                     }
 
-                    for (int w = 0; w < neuron.Weights.Length; w++)
+                    for (int w = 0; w < Layers[l].Neurons[n].Weights.Length; w++)
                     {
                         if (random.NextDouble() < rate)
                         {
-                            neuron.Weights[w] *= random.NextDouble(0.5, 1.5);
+                            Layers[l].Neurons[n].Weights[w] *= random.NextDouble(0.5, 1.5);
 
                             if (random.NextDouble() < rate)
                             {
-                                neuron.Weights[w] *= random.RandomSign();
+                                Layers[l].Neurons[n].Weights[w] *= random.RandomSign();
                             }
                         }
                     }
@@ -89,18 +86,13 @@ namespace FeedForwardNeuralNetwork
         {
             for (int l = 0; l < Layers.Length; l++)
             {
-                Layer layer = Layers[l];
-
-                int cut = random.Next(layer.Neurons.Length);
+                int cut = random.Next(Layers[l].Neurons.Length);
                 bool flip = random.Next(2) == 0;
 
-                for (int n = (flip ? 0 : cut); n < (flip ? cut : layer.Neurons.Length); n++)
+                for (int n = (flip ? 0 : cut); n < (flip ? cut : Layers[l].Neurons.Length); n++)
                 {
-                    Neuron neuron = layer.Neurons[n];
-                    Neuron otherNeuron = other.Layers[l].Neurons[n];
-
-                    neuron.Bias = otherNeuron.Bias;
-                    otherNeuron.Weights.CopyTo(neuron.Weights, 0);
+                    Layers[l].Neurons[n].Bias = other.Layers[l].Neurons[n].Bias;
+                    other.Layers[l].Neurons[n].Weights.CopyTo(Layers[l].Neurons[n].Weights, 0);
                 }
             }
         }

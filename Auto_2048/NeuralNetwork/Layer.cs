@@ -9,7 +9,7 @@ namespace FeedForwardNeuralNetwork
         public Neuron[] Neurons;
 
         [JsonIgnore]
-        public double[] Output => Neurons.Select(n => n.Output).ToArray();
+        public double[] Output;
 
         public Layer(ActivationType act, int inputCount, int neuronCount)
         {
@@ -18,6 +18,8 @@ namespace FeedForwardNeuralNetwork
             {
                 Neurons[i] = new Neuron(act, inputCount);
             }
+
+            Output = new double[neuronCount];
         }
 
         public void Randomize(Random rand)
@@ -32,7 +34,7 @@ namespace FeedForwardNeuralNetwork
         {
             for (int i = 0; i < Neurons.Length; i++)
             {
-                Neurons[i].Compute(input);
+                Output[i] = Neurons[i].Compute(input);
             }
             return Output;
         }
