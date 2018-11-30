@@ -8,7 +8,35 @@ namespace Trainer
 {
     class Program
     {
+        static Random random = new Random();
+
         static void Main(string[] args)
+        {
+            Console.Clear();
+            Console.Write("Play or Train [p/t]? ");
+            string response = Console.ReadLine().ToLower();
+
+            if (response == "p")
+            {
+                PlayGame();
+            }
+            else if (response == "t")
+            {
+                TrainNetwork();
+            }
+        }
+
+        static void PlayGame()
+        {
+            Gamer player = new Gamer(random);
+            while (!player.GameOver)
+            {
+                player.Play(true);
+            }
+            Console.WriteLine("Goodbye!");
+        }
+
+        static void TrainNetwork()
         {
             // 16, x, 4
             // 10 = 2877
@@ -18,17 +46,15 @@ namespace Trainer
             // 17 = 3378
             // 20 = 2667
 
-            // 1 extra bit for if a move occured last turn
-            // 17, x, 4
 
 
             int maxGen = 1000;
             int playCount = 10;
             int populationSize = 100;
-
             int highScore = 0;
-            Random random = new Random();
             Gamer[] population = new Gamer[populationSize];
+
+            //Initialize Gamers
             for (int i = 0; i < population.Length; i++)
             {
                 population[i] = new Gamer(random);
@@ -40,7 +66,7 @@ namespace Trainer
                 if (gen != 0)
                 {
                     int start = (int)(population.Length * 0.10);
-                    int end = (int)(population.Length * 0.85);
+                    int end = (int)(population.Length * 0.90);
                     for (int i = start; i < end; i++)
                     {
                         population[i].Net.Crossover(random, population[random.Next(start)].Net);
@@ -111,13 +137,10 @@ namespace Trainer
 
             }
 
-
-            //play game with best net
+            //save best net to json
             string save = JsonConvert.SerializeObject(population[0].Net);
-
             File.WriteAllText("bestNet.json", save);
 
-            //save best net to json
             Console.WriteLine("Done");
             Console.ReadKey();
         }
