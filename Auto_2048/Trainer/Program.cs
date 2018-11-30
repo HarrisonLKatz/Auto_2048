@@ -10,7 +10,7 @@ namespace Trainer
 {
     class Program
     {
-        static Random random = new Random(42);
+        static Random random = new Random();
 
         static void Main(string[] args)
         {
@@ -50,17 +50,18 @@ namespace Trainer
 
             // 20, x, 4
             // 10 = 
-            // 14 = 
-            // 20 = 
+            // 14 = 4628
+            // 20 = 5504
+            // 30 = 4096
 
             int maxGen = 1000;
-            int playCount = 10;
-            int populationSize = 200;
+            int playCount = 16;
+            int populationSize = 1000;
             int highAverageScore = 0;
             Gamer[] population = new Gamer[populationSize];
 
             int inputSize = 20;
-            int[] netShape = { 14, 4 };
+            int[] netShape = { 16, 4 };
 
             //Initialize Gamers
             for (int i = 0; i < population.Length; i++)
