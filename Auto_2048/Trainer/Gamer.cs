@@ -36,10 +36,11 @@ namespace Trainer
             moveOccured = false;
         }
 
-        public Gamer(Random random, int inputSize, int[] netShape) // constructor for trainer
+        public Gamer(Random random, ActivationType[] acts, int inputSize, int[] netShape) // constructor for trainer
         {
             //Start Net
-            Net = new Network(ActivationType.Sigmoid, inputSize, netShape);
+            Net = new Network(acts, inputSize, netShape);
+
             Net.Randomize(random);
             input = new double[inputSize];
 

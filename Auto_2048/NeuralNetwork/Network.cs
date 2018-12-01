@@ -7,29 +7,33 @@ namespace FeedForwardNeuralNetwork
     public class Network
     {
         public Layer[] Layers;
-
-        [JsonProperty]
-        private readonly ActivationType act;
         [JsonProperty]
         private readonly int inputCount;
         [JsonProperty]
         private readonly int[] layerNeurons;
+        [JsonProperty]
+        private readonly ActivationType[] acts;
 
         [JsonIgnore]
         public double[] Output;
 
         [JsonConstructor]
-        public Network(ActivationType act, int inputCount, params int[] layerNeurons)
+        public Network(ActivationType[] acts, int inputCount, params int[] layerNeurons)
         {
-            this.act = act;
+            if (acts.Length != layerNeurons.Length)
+            {
+                throw new ArgumentException("acts length must match layerNeurons length");
+            }
+
+            this.acts = acts;
             this.inputCount = inputCount;
             this.layerNeurons = layerNeurons;
 
             Layers = new Layer[layerNeurons.Length];
-            Layers[0] = new Layer(act, inputCount, layerNeurons[0]);
+            Layers[0] = new Layer(acts[0], inputCount, layerNeurons[0]);
             for (int i = 1; i < layerNeurons.Length; i++)
             {
-                Layers[i] = new Layer(act, Layers[i - 1].Neurons.Length, layerNeurons[i]);
+                Layers[i] = new Layer(acts[i], Layers[i - 1].Neurons.Length, layerNeurons[i]);
             }
         }
 

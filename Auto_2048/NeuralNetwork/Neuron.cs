@@ -7,15 +7,18 @@ namespace FeedForwardNeuralNetwork
     {
         public double Bias;
         public double[] Weights;
+        [JsonProperty]
+        private readonly ActivationType act;
+
 
         [JsonIgnore]
         public double Output;
-
         [JsonIgnore]
         public Func<double, double> Activation;
 
         public Neuron(ActivationType act, int inputCount)
         {
+            this.act = act;
             switch (act)
             {
                 case ActivationType.BinaryStep:
@@ -23,6 +26,9 @@ namespace FeedForwardNeuralNetwork
                     break;
                 case ActivationType.Sigmoid:
                     Activation = Activations.Sigmoid;
+                    break;
+                case ActivationType.RELU:
+                    Activation = Activations.RELU;
                     break;
                 default:
                     throw new Exception("u wot m8");

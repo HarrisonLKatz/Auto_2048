@@ -15,5 +15,10 @@ namespace FeedForwardNeuralNetwork
         {
             return 1 / (1 + Math.Exp(-x));
         }
+
+        public static double RELU(double x)
+        {
+            return x < 0 ? 0 : x;
+        }
     }
 }

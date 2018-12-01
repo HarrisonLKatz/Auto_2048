@@ -10,11 +10,13 @@ namespace Trainer
 {
     class Program
     {
-        static Random random = new Random();
+        static Random random;
 
         static void Main(string[] args)
         {
             Console.Clear();
+            random = new Random(Guid.NewGuid().GetHashCode());
+
             Console.Write("Play or Train [p/t]? ");
             //string response = Console.ReadLine().ToLower();
 
@@ -48,25 +50,21 @@ namespace Trainer
             // Total: 564,116
             // Highest: 32,768
 
-            // 20, x, 4
-            // 10 = 
-            // 14 = 4628
-            // 20 = 5504
-            // 30 = 4096
-
             int maxGen = 1000;
             int playCount = 16;
             int populationSize = 1000;
+            int currBestAvg = 0;
             int highAverageScore = 0;
             Gamer[] population = new Gamer[populationSize];
 
             int inputSize = 20;
-            int[] netShape = { 16, 4 };
+            int[] netShape = { 17, 4 };
+            ActivationType[] acts = new ActivationType[] { ActivationType.RELU, ActivationType.Sigmoid };
 
             //Initialize Gamers
             for (int i = 0; i < population.Length; i++)
             {
-                population[i] = new Gamer(random, inputSize, netShape);
+                population[i] = new Gamer(random, acts, inputSize, netShape);
             }
 
             for (int gen = 0; gen < maxGen; gen++)
@@ -76,7 +74,7 @@ namespace Trainer
                 {
                     //Mutate Generation
                     int start = (int)(population.Length * 0.10);
-                    int end = (int)(population.Length * 0.85);
+                    int end = (int)(population.Length * 0.90);
                     for (int i = start; i < end; i++)
                     {
                         population[i].Net.Crossover(random, population[random.Next(start)].Net);
@@ -88,6 +86,7 @@ namespace Trainer
                     }
                 }
 
+                currBestAvg = 0;
                 for (int i = 0; i < population.Length; i++)
                 {
                     population[i].AverageScore = 0;
@@ -111,6 +110,8 @@ namespace Trainer
                         //calculate avg score after each game
                         population[i].AverageScore += population[i].Score;
                     }
+
+                    //average score of all games
                     population[i].AverageScore /= playCount;
                 });
 
@@ -118,18 +119,17 @@ namespace Trainer
                 //Sort Fitness
                 Array.Sort(population, (a, b) => b.AverageScore.CompareTo(a.AverageScore));
 
+                currBestAvg = population[0].AverageScore;
                 if (population[0].AverageScore > highAverageScore)
                 {
                     highAverageScore = population[0].AverageScore;
                 }
 
                 //Display Progress
-
                 Console.SetCursorPosition(0, 0);
-                Console.WriteLine($"Highest Average Score: {highAverageScore}");
+                Console.WriteLine($"Gen Top Avg Score: {currBestAvg}");
+                Console.WriteLine($"All Top Avg Score: {highAverageScore}");
                 Console.WriteLine($"%{(int)(gen / (double)maxGen * 100)}");
-
-
             }
 
             //save best net to json
