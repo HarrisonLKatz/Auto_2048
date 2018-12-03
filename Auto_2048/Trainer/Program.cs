@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,6 +12,11 @@ namespace Trainer
 {
     class Program
     {
+
+        // To Beat: 
+        // Total: 564,116
+        // Highest: 32,768
+
         static void Main(string[] args)
         {
             Console.Clear();
@@ -24,7 +30,15 @@ namespace Trainer
             }
             else //if (response == "t")
             {
-                TrainNetwork();
+                StringBuilder csv = new StringBuilder();
+                for (int i = 4; i <= 20; i++)
+                {
+                    Console.Clear();
+                    Console.WriteLine($"Current Value: {i}");
+                    int score = TrainNetwork(i);
+                    csv.AppendLine($"{i}, {score}");
+                }
+                File.WriteAllText("data.csv", csv.ToString());
             }
         }
 
@@ -42,19 +56,8 @@ namespace Trainer
             Console.WriteLine("Goodbye!");
         }
 
-        static void TrainNetwork()
+        static int TrainNetwork(int hiddenSize)
         {
-            Console.Clear();
-
-            // To Beat: 
-            // Total: 564,116
-            // Highest: 32,768
-
-            // 20, x, 4
-            // 4 = 
-            // 12 = 
-            // 20 = 
-
             int maxGen = 1000;
             int playCount = 16;
             int populationSize = 1000;
@@ -63,7 +66,7 @@ namespace Trainer
             Gamer[] population = new Gamer[populationSize];
 
             int inputSize = 20;
-            int[] netShape = { 12, 4 };
+            int[] netShape = { hiddenSize, 4 };
             ActivationType[] acts = Enumerable.Repeat(ActivationType.RELU, netShape.Length).ToArray();
             acts[acts.Length - 1] = ActivationType.Sigmoid;
 
@@ -138,19 +141,17 @@ namespace Trainer
                 }
 
                 //Display Progress
-                Console.SetCursorPosition(0, 0);
-                Console.WriteLine($"Gen: {gen}");
-                Console.WriteLine($"Gen Top Avg Score: {currBestAvg}");
-                Console.WriteLine($"All Top Avg Score: {highAverageScore}");
-                Console.WriteLine($"% {(int)(gen / (double)maxGen * 100)}");
+                //Console.SetCursorPosition(0, 0);
+                //Console.WriteLine($"Gen: {gen}");
+                //Console.WriteLine($"Gen Top Avg Score: {currBestAvg}");
+                //Console.WriteLine($"All Top Avg Score: {highAverageScore}");
+                //Console.WriteLine($"% {(int)(gen / (double)maxGen * 100)}");
             }
 
             //save best net to json
             string save = JsonConvert.SerializeObject(population[0].Net);
             File.WriteAllText("bestNet.json", save);
-
-            Console.WriteLine("Done");
-            Console.ReadKey();
+            return highAverageScore;
         }
     }
 }
