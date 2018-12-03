@@ -51,9 +51,11 @@ namespace Trainer
             // Highest: 32,768
 
             // 20, x, 4
-            // 17 = 
+            // 4 = 
+            // 12 = 
+            // 20 = 
 
-            int maxGen = int.MaxValue;
+            int maxGen = 1000;
             int playCount = 16;
             int populationSize = 1000;
             int currBestAvg = 0;
@@ -61,7 +63,7 @@ namespace Trainer
             Gamer[] population = new Gamer[populationSize];
 
             int inputSize = 20;
-            int[] netShape = { 17, 4 };
+            int[] netShape = { 12, 4 };
             ActivationType[] acts = Enumerable.Repeat(ActivationType.RELU, netShape.Length).ToArray();
             acts[acts.Length - 1] = ActivationType.Sigmoid;
 
@@ -98,14 +100,14 @@ namespace Trainer
                     population[i].AverageScore = 0;
                 }
 
-                //each net should play a # of games and get an average score
-
                 //thread local data
                 int seed = Guid.NewGuid().GetHashCode();
 
                 Parallel.For(0, population.Length, (i) =>
                 {
                     Random gameRand = new Random(seed);
+
+                    //each net should play a # of games and get an average score
                     for (int gameNum = 0; gameNum < playCount; gameNum++)
                     {
                         //Reset Game
@@ -136,7 +138,7 @@ namespace Trainer
                 }
 
                 //Display Progress
-                Console.Clear();
+                Console.SetCursorPosition(0, 0);
                 Console.WriteLine($"Gen: {gen}");
                 Console.WriteLine($"Gen Top Avg Score: {currBestAvg}");
                 Console.WriteLine($"All Top Avg Score: {highAverageScore}");
