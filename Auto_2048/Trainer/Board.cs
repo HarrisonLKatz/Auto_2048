@@ -10,24 +10,21 @@ namespace Trainer
         public bool GameOver;
         public int[,] Values;
         private int[,] PrevState;
-        Random random;
 
         private HashSet<int> merged;
         private List<(int, int)> openSpots;
 
-        public Board(Random gen)
+        public Board()
         {
             merged = new HashSet<int>(8);
             openSpots = new List<(int, int)>(16);
             Values = new int[4, 4];
             PrevState = new int[4, 4];
-            random = gen;
-
-            Init();
         }
 
-        public void Init()
+        public void Init(Random random)
         {
+            //random = new Random(Guid.NewGuid().GetHashCode());
             Score = 0;
             GameOver = false;
             for (int i = 0; i < Values.GetLength(0); i++)
@@ -37,11 +34,11 @@ namespace Trainer
                     Values[i, j] = 0;
                 }
             }
-            AddRandomTile();
-            AddRandomTile();
+            AddRandomTile(random);
+            AddRandomTile(random);
         }
 
-        public void AddRandomTile()
+        public void AddRandomTile(Random random)
         {
             //find all open spots
             openSpots.Clear();
@@ -179,6 +176,7 @@ namespace Trainer
                                 Values[col, curr + 1] += Values[col, curr];
                                 Values[col, curr] = 0;
                                 Score += Values[col, curr + 1];
+
                                 merged.Add(curr + 1);
                                 curr++;
                                 moveOccured = true;
@@ -231,6 +229,7 @@ namespace Trainer
                                 Values[curr, row] = 0;
 
                                 Score += Values[curr - 1, row];
+
                                 merged.Add(curr - 1);
                                 curr--;
                                 moveOccured = true;
@@ -283,6 +282,7 @@ namespace Trainer
                                 Values[curr + 1, row] += Values[curr, row];
                                 Values[curr, row] = 0;
                                 Score += Values[curr + 1, row];
+
                                 merged.Add(curr + 1);
                                 curr++;
                                 moveOccured = true;

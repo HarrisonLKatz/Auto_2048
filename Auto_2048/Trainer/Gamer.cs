@@ -8,14 +8,12 @@ namespace Trainer
 {
     class Gamer
     {
-
         public int AverageScore;
         public Network Net;
-        public bool GameOver => game.GameOver;
-        public int Score => game.Score;
+        public bool GameOver => Game.GameOver;
+        public int Score => Game.Score;
 
-        private Board game;
-        private Random random;
+        public Board Game;
 
         //Game Variables
         private bool moveOccured;
@@ -28,11 +26,10 @@ namespace Trainer
         private int pick;
         private double[] outputs;
 
-        public Gamer(Random random) // constructor for manual, don't judge
+        public Gamer() // constructor for manual, don't judge
         {
             //Start Game
-            this.random = random;
-            game = new Board(random);
+            Game = new Board();
             moveOccured = false;
         }
 
@@ -45,24 +42,23 @@ namespace Trainer
             input = new double[inputSize];
 
             //Start Game
-            this.random = random;
-            game = new Board(random);
+            Game = new Board();
             moveOccured = false;
         }
 
-        public void Restart()
+        public void Restart(Random random)
         {
-            game.Init();
+            Game.Init(random);
             moveOccured = false;
         }
 
-        public void Play(bool manual = false)
+        public void Play(Random random, bool manual = false)
         {
             moveCanOccur = false;
-            canMoveUp = game.Up(true);
-            canMoveDown = game.Down(true);
-            canMoveLeft = game.Left(true);
-            canMoveRight = game.Right(true);
+            canMoveUp = Game.Up(true);
+            canMoveDown = Game.Down(true);
+            canMoveLeft = Game.Left(true);
+            canMoveRight = Game.Right(true);
 
             moveCanOccur |= canMoveUp;
             moveCanOccur |= canMoveDown;
@@ -71,7 +67,7 @@ namespace Trainer
 
             if (!moveCanOccur)
             {
-                game.GameOver = true;
+                Game.GameOver = true;
                 return;
             }
 
@@ -79,11 +75,11 @@ namespace Trainer
             if (manual)
             {
                 Console.SetCursorPosition(0, 0);
-                for (int i = 0; i < game.Values.GetLength(0); i++)
+                for (int i = 0; i < Game.Values.GetLength(0); i++)
                 {
-                    for (int j = 0; j < game.Values.GetLength(1); j++)
+                    for (int j = 0; j < Game.Values.GetLength(1); j++)
                     {
-                        Console.Write($"{game.Values[j, i]}\t");
+                        Console.Write($"{Game.Values[j, i]}\t");
                     }
                     Console.WriteLine("");
                 }
@@ -119,7 +115,7 @@ namespace Trainer
                 input[3] = canMoveRight ? 1 : 0;
 
                 int index = 4;
-                foreach (int num in game.Values)
+                foreach (int num in Game.Values)
                 {
                     input[index] = num;
                     index++;
@@ -134,26 +130,26 @@ namespace Trainer
             switch (pick)
             {
                 case 0:
-                    moveOccured |= game.Up(false);
+                    moveOccured |= Game.Up(false);
                     break;
                 case 1:
-                    moveOccured |= game.Down(false);
+                    moveOccured |= Game.Down(false);
                     break;
                 case 2:
-                    moveOccured |= game.Left(false);
+                    moveOccured |= Game.Left(false);
                     break;
                 case 3:
-                    moveOccured |= game.Right(false);
+                    moveOccured |= Game.Right(false);
                     break;
             }
 
             if (moveOccured)
             {
-                game.AddRandomTile();
+                Game.AddRandomTile(random);
             }
             else
             {
-                game.GameOver = true;
+                Game.GameOver = true;
             }
         }
 

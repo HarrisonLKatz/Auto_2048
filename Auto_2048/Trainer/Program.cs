@@ -1,6 +1,7 @@
 ﻿using FeedForwardNeuralNetwork;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -10,21 +11,18 @@ namespace Trainer
 {
     class Program
     {
-        static Random random;
-
         static void Main(string[] args)
         {
             Console.Clear();
-            random = new Random(Guid.NewGuid().GetHashCode());
 
             Console.Write("Play or Train [p/t]? ");
             //string response = Console.ReadLine().ToLower();
 
-            if (false)// (response == "p")
+            if (false) //(response == "p")
             {
                 PlayGame();
             }
-            else if (true)//(response == "t")
+            else //if (response == "t")
             {
                 TrainNetwork();
             }
@@ -32,12 +30,14 @@ namespace Trainer
 
         static void PlayGame()
         {
-            Console.Clear();
+            Random playerRand = new Random();
 
-            Gamer player = new Gamer(random);
+            Console.Clear();
+            Gamer player = new Gamer();
+            player.Restart(playerRand);
             while (!player.GameOver)
             {
-                player.Play(true);
+                player.Play(playerRand, true);
             }
             Console.WriteLine("Goodbye!");
         }
@@ -50,7 +50,10 @@ namespace Trainer
             // Total: 564,116
             // Highest: 32,768
 
-            int maxGen = 1000;
+            // 20, x, 4
+            // 17 = 
+
+            int maxGen = int.MaxValue;
             int playCount = 16;
             int populationSize = 1000;
             int currBestAvg = 0;
@@ -59,12 +62,15 @@ namespace Trainer
 
             int inputSize = 20;
             int[] netShape = { 17, 4 };
-            ActivationType[] acts = new ActivationType[] { ActivationType.RELU, ActivationType.Sigmoid };
+            ActivationType[] acts = Enumerable.Repeat(ActivationType.RELU, netShape.Length).ToArray();
+            acts[acts.Length - 1] = ActivationType.Sigmoid;
+
+            Random trainRand = new Random();
 
             //Initialize Gamers
             for (int i = 0; i < population.Length; i++)
             {
-                population[i] = new Gamer(random, acts, inputSize, netShape);
+                population[i] = new Gamer(trainRand, acts, inputSize, netShape);
             }
 
             for (int gen = 0; gen < maxGen; gen++)
@@ -77,12 +83,12 @@ namespace Trainer
                     int end = (int)(population.Length * 0.90);
                     for (int i = start; i < end; i++)
                     {
-                        population[i].Net.Crossover(random, population[random.Next(start)].Net);
-                        population[i].Net.Mutate(random, 0.15);
+                        population[i].Net.Crossover(trainRand, population[trainRand.Next(start)].Net);
+                        population[i].Net.Mutate(trainRand, 0.15);
                     }
                     for (int i = end; i < population.Length; i++)
                     {
-                        population[i].Net.Randomize(random);
+                        population[i].Net.Randomize(trainRand);
                     }
                 }
 
@@ -94,17 +100,21 @@ namespace Trainer
 
                 //each net should play a # of games and get an average score
 
+                //thread local data
+                int seed = Guid.NewGuid().GetHashCode();
+
                 Parallel.For(0, population.Length, (i) =>
                 {
+                    Random gameRand = new Random(seed);
                     for (int gameNum = 0; gameNum < playCount; gameNum++)
                     {
                         //Reset Game
-                        population[i].Restart();
+                        population[i].Restart(gameRand);
 
                         //Each Net Plays game until completed
                         while (!population[i].GameOver)
                         {
-                            population[i].Play();
+                            population[i].Play(gameRand);
                         }
 
                         //calculate avg score after each game
@@ -126,10 +136,11 @@ namespace Trainer
                 }
 
                 //Display Progress
-                Console.SetCursorPosition(0, 0);
+                Console.Clear();
+                Console.WriteLine($"Gen: {gen}");
                 Console.WriteLine($"Gen Top Avg Score: {currBestAvg}");
                 Console.WriteLine($"All Top Avg Score: {highAverageScore}");
-                Console.WriteLine($"%{(int)(gen / (double)maxGen * 100)}");
+                Console.WriteLine($"% {(int)(gen / (double)maxGen * 100)}");
             }
 
             //save best net to json
