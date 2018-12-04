@@ -1,4 +1,7 @@
-﻿using FeedForwardNeuralNetwork;
+﻿using Alea;
+using Alea.CSharp;
+using Alea.Parallel;
+using FeedForwardNeuralNetwork;
 using Newtonsoft.Json;
 using System;
 using System.Collections;
@@ -107,10 +110,10 @@ namespace TrainerGpu
 
                 //thread local data
                 int seed = Guid.NewGuid().GetHashCode();
+                Gpu gpu = Gpu.Default;
 
-
-
-                Parallel.For(0, population.Length, (i) =>
+                //System.Exception: Constant variable is immutable.
+                gpu.For(0, population.Length, (i) =>
                 {
                     Random gameRand = new Random(seed);
 
