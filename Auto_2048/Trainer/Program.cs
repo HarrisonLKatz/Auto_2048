@@ -12,7 +12,6 @@ namespace Trainer
 {
     class Program
     {
-
         // To Beat: 
         // Total: 564,116
         // Highest: 32,768
@@ -34,11 +33,16 @@ namespace Trainer
                 for (int i = 4; i <= 20; i++)
                 {
                     Console.Clear();
+                    Console.WriteLine($"% {((i - 1) / (float)17) * 100}");
                     Console.WriteLine($"Current Value: {i}");
                     int score = TrainNetwork(i);
                     csv.AppendLine($"{i}, {score}");
                 }
+                Console.Clear();
+                Console.WriteLine("% 100");
                 File.WriteAllText("data.csv", csv.ToString());
+                Console.WriteLine("Done!");
+                Console.ReadKey();
             }
         }
 
