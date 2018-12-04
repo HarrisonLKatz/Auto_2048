@@ -10,13 +10,4 @@
     <ProjectReference Include="..\NeuralNetwork\NeuralNetwork.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="bestNet.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="data.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

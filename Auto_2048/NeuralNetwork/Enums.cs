@@ -8,6 +8,7 @@ namespace FeedForwardNeuralNetwork
     {
         BinaryStep,
         Sigmoid,
-        RELU
+        RELU,
+        LRELU
     }
 }

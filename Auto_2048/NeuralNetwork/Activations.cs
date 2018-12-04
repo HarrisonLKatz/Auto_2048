@@ -20,5 +20,10 @@ namespace FeedForwardNeuralNetwork
         {
             return x < 0 ? 0 : x;
         }
+
+        public static double LRELU(double x)
+        {
+            return x < 0 ? 0.01 * x : x;
+        }
     }
 }

@@ -15,15 +15,12 @@ namespace TrainerGpu
 {
     class Program
     {
-
         // To Beat: 
         // Total: 564,116
         // Highest: 32,768
 
         static void Main(string[] args)
         {
-
-
             Console.Clear();
 
             Console.Write("Play or Train [p/t]? ");
@@ -36,14 +33,17 @@ namespace TrainerGpu
             else //if (response == "t")
             {
                 StringBuilder csv = new StringBuilder();
-                for (int i = 4; i <= 20; i++)
+                for (int i = 1; i <= 1; i++)
                 {
                     Console.Clear();
+                    Console.WriteLine($"% {((i - 1) / (float)17) * 100}");
                     Console.WriteLine($"Current Value: {i}");
                     int score = TrainNetwork(i);
                     csv.AppendLine($"{i}, {score}");
                 }
-                File.WriteAllText("data.csv", csv.ToString());
+                Console.Clear();
+                Console.WriteLine("% 100");
+                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/results.csv", csv.ToString());
             }
         }
 
@@ -63,9 +63,9 @@ namespace TrainerGpu
 
         static int TrainNetwork(int hiddenSize)
         {
-            int maxGen = 1000;
+            int maxGen = 1;
             int playCount = 16;
-            int populationSize = 1000;
+            int populationSize = 1;
             int currBestAvg = 0;
             int highAverageScore = 0;
             Gamer[] population = new Gamer[populationSize];
@@ -157,7 +157,7 @@ namespace TrainerGpu
 
             //save best net to json
             string save = JsonConvert.SerializeObject(population[0].Net);
-            File.WriteAllText("bestNet.json", save);
+            File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/network.json", save);
             return highAverageScore;
         }
     }

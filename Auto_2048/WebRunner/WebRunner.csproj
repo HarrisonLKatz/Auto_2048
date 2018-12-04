@@ -14,9 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="bestNet.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="chromedriver.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
