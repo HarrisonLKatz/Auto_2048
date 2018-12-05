@@ -1,8 +1,6 @@
 ﻿using FeedForwardNeuralNetwork;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TrainerGpu
 {
@@ -52,7 +50,7 @@ namespace TrainerGpu
             moveOccured = false;
         }
 
-        public void Play(Random random, bool manual = false)
+        public void Play(Random random)
         {
             moveCanOccur = false;
             canMoveUp = Game.Up(true);
@@ -71,59 +69,21 @@ namespace TrainerGpu
                 return;
             }
 
-            pick = -1;
-            if (manual)
+            //Pick Move with network
+            input[0] = canMoveUp ? 1 : 0;
+            input[1] = canMoveDown ? 1 : 0;
+            input[2] = canMoveLeft ? 1 : 0;
+            input[3] = canMoveRight ? 1 : 0;
+
+            int index = 4;
+            foreach (int num in Game.Values)
             {
-                Console.SetCursorPosition(0, 0);
-                for (int i = 0; i < Game.Values.GetLength(0); i++)
-                {
-                    for (int j = 0; j < Game.Values.GetLength(1); j++)
-                    {
-                        Console.Write($"{Game.Values[j, i]}\t");
-                    }
-                    Console.WriteLine("");
-                }
-
-                ConsoleKey key = Console.ReadKey(true).Key;
-                Console.Write("                         "); //clearing error message
-                switch (key)
-                {
-                    case ConsoleKey.UpArrow:
-                        pick = 0;
-                        break;
-                    case ConsoleKey.DownArrow:
-                        pick = 1;
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        pick = 2;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        pick = 3;
-                        break;
-                    default:
-                        Console.SetCursorPosition(0, Console.CursorTop);
-                        Console.WriteLine("Not a valid move");
-                        break;
-                }
+                input[index] = num;
+                index++;
             }
-            else
-            {
-                //Pick Move with network
-                input[0] = canMoveUp ? 1 : 0;
-                input[1] = canMoveDown ? 1 : 0;
-                input[2] = canMoveLeft ? 1 : 0;
-                input[3] = canMoveRight ? 1 : 0;
 
-                int index = 4;
-                foreach (int num in Game.Values)
-                {
-                    input[index] = num;
-                    index++;
-                }
-
-                outputs = Net.Compute(input);
-                pick = Array.IndexOf(outputs, outputs.Max());
-            }
+            outputs = Net.Compute(input);
+            pick = Array.IndexOf(outputs, outputs.Max());
 
             //perform move
             moveOccured = false;

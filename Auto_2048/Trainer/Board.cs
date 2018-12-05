@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace TrainerGpu
+namespace Trainer
 {
     public class Board
     {
@@ -16,7 +15,7 @@ namespace TrainerGpu
 
         public Board()
         {
-            merged = new HashSet<int>();
+            merged = new HashSet<int>(8);
             openSpots = new List<(int, int)>(16);
             Values = new int[4, 4];
             PrevState = new int[4, 4];
@@ -24,7 +23,6 @@ namespace TrainerGpu
 
         public void Init(Random random)
         {
-            //random = new Random(Guid.NewGuid().GetHashCode());
             Score = 0;
             GameOver = false;
             for (int i = 0; i < Values.GetLength(0); i++)
@@ -40,7 +38,6 @@ namespace TrainerGpu
 
         public void AddRandomTile(Random random)
         {
-            //find all open spots
             openSpots.Clear();
 
             for (int i = 0; i < Values.GetLength(0); i++)
@@ -54,7 +51,6 @@ namespace TrainerGpu
                 }
             }
 
-            //If no open spots, game is over
             if (openSpots.Count == 0)
             {
                 return;

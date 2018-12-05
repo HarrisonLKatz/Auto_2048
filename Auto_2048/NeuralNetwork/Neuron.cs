@@ -30,6 +30,9 @@ namespace FeedForwardNeuralNetwork
                 case ActivationType.RELU:
                     Activation = Activations.RELU;
                     break;
+                case ActivationType.LRELU:
+                    Activation = Activations.LRELU;
+                    break;
                 default:
                     throw new Exception("u wot m8");
             }

@@ -1,14 +1,12 @@
 ﻿using FeedForwardNeuralNetwork;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace TrainerGpu
+namespace Trainer
 {
     class Program
     {
@@ -18,58 +16,36 @@ namespace TrainerGpu
 
         static void Main(string[] args)
         {
-            Console.Clear();
+            StringBuilder csv = new StringBuilder();
 
-            Console.Write("Play or Train [p/t]? ");
-            //string response = Console.ReadLine().ToLower();
+            int start = 1;
+            int end = 30;
 
-            if (false) //(response == "p")
+            for (int i = start; i <= end; i++)
             {
-                PlayGame();
-            }
-            else //if (response == "t")
-            {
-                StringBuilder csv = new StringBuilder();
-                for (int i = 1; i <= 1; i++)
-                {
-                    Console.Clear();
-                    Console.WriteLine($"% {((i - 1) / (float)17) * 100}");
-                    Console.WriteLine($"Current Value: {i}");
-                    int score = TrainNetwork(i);
-                    csv.AppendLine($"{i}, {score}");
-                }
                 Console.Clear();
-                Console.WriteLine("% 100");
-                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/results.csv", csv.ToString());
+                Console.WriteLine($"% { (float)(i - start) / (end - start + 1) * 100}");
+                Console.WriteLine($"Current Value: {i}");
+                int score = TrainNetwork(i);
+                csv.AppendLine($"{i}, {score}");
             }
-        }
-
-        static void PlayGame()
-        {
-            Random playerRand = new Random();
-
             Console.Clear();
-            Gamer player = new Gamer();
-            player.Restart(playerRand);
-            while (!player.GameOver)
-            {
-                player.Play(playerRand, true);
-            }
-            Console.WriteLine("Goodbye!");
+            Console.WriteLine("% 100");
+            File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.Desktop)}/results.csv", csv.ToString());
         }
 
         static int TrainNetwork(int hiddenSize)
         {
-            int maxGen = 1;
+            int maxGen = 1000;
             int playCount = 16;
-            int populationSize = 1;
+            int populationSize = 100;
             int currBestAvg = 0;
             int highAverageScore = 0;
             Gamer[] population = new Gamer[populationSize];
 
             int inputSize = 20;
             int[] netShape = { hiddenSize, 4 };
-            ActivationType[] acts = Enumerable.Repeat(ActivationType.RELU, netShape.Length).ToArray();
+            ActivationType[] acts = Enumerable.Repeat(ActivationType.LRELU, netShape.Length).ToArray();
             acts[acts.Length - 1] = ActivationType.Sigmoid;
 
             Random trainRand = new Random();
@@ -82,7 +58,6 @@ namespace TrainerGpu
 
             for (int gen = 0; gen < maxGen; gen++)
             {
-
                 if (gen != 0)
                 {
                     //Mutate Generation
@@ -108,8 +83,6 @@ namespace TrainerGpu
                 //thread local data
                 int seed = Guid.NewGuid().GetHashCode();
 
-
-
                 Parallel.For(0, population.Length, (i) =>
                 {
                     Random gameRand = new Random(seed);
@@ -133,7 +106,6 @@ namespace TrainerGpu
                     //average score of all games
                     population[i].AverageScore /= playCount;
                 });
-
 
                 //Sort Fitness
                 Array.Sort(population, (a, b) => b.AverageScore.CompareTo(a.AverageScore));
